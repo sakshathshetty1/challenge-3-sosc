@@ -37,6 +37,6 @@ The purpose of this application is to replace manual and offline booking process
 
 ---
 
-I wanted to integrate the app with supabase ,because i have created the app with base 44 so to inteagrate to supabase subscription is needed!!!
+I wanted to integrate the app with supabase ,because i have created the app with base 44 so to integrate to supabase subscription is needed!!!
 
  
