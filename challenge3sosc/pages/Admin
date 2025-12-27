@@ -1,0 +1,78 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import Sidebar from '@/components/navigation/Sidebar';
+import BottomNav from '@/components/navigation/BottomNav';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+
+export default function Layout({ children, currentPageName }) {
+  const [theme, setTheme] = useState('light');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (e) {
+        // Not logged in
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const isAuthPage = currentPageName === 'Login';
+  const isAdminPage = currentPageName === 'Admin';
+
+  if (isAuthPage) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+        <div className="fixed top-4 right-4 z-50">
+          <ThemeToggle theme={theme} setTheme={setTheme} />
+        </div>
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <Sidebar currentPage={currentPageName} user={user} />
+      
+      {/* Mobile Header */}
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between px-4 h-14">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">S</span>
+            </div>
+            <span className="font-semibold text-slate-900 dark:text-white text-sm">Sahyadri Booking</span>
+          </div>
+          <ThemeToggle theme={theme} setTheme={setTheme} />
+        </div>
+      </header>
+
+      {/* Desktop Theme Toggle */}
+      <div className="hidden md:block fixed top-4 right-4 z-50">
+        <ThemeToggle theme={theme} setTheme={setTheme} />
+      </div>
+
+      {/* Main Content */}
+      <main className={`md:ml-64 pt-14 md:pt-0 pb-20 md:pb-0 min-h-screen`}>
+        {children}
+      </main>
+
+      <BottomNav currentPage={currentPageName} />
+    </div>
+  );
+}
